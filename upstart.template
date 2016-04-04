@@ -1,0 +1,16 @@
+description "Start {NAME}"
+author "Christopher Little"
+
+start on (local-filesystems and net-device-up) # {NAME} starts when the computer turns on..
+stop on shutdown                               # .. and doesn't stop until it switches off
+
+instance "{NAME} - Node"
+
+respawn             # This line tells {NAME} to pick itself up if it crashes
+respawn limit 5 60  # but give up if it crashes more than 5 times in 60 secs
+
+script
+    # upstart scripts run as root which is bad, so I'm executing this command as noderunner.
+    cd /home/noderunner/
+    exec sudo -u noderunner PORT={PORT} bash -c "({COMD}) >> logs/{SLUG}.log"
+end script
